@@ -3,7 +3,7 @@ class Parser:
     patterns = {
         "heading": re.compile(r"#{1,3}+(.+)"),
         "lines": re.compile(r"-{3}|\*{3}|_{3}"),
-        "bold": re.compile(r"\*\*(.+?)\*\*")
+        "text_styles": re.compile(r"\*(.+)\*|\*\*(.+)\*\*|\*\*\*(.+)\*\*\*")
     }
     boiler_plate = '''
 <!DOCTYPE html>
@@ -26,9 +26,6 @@ class Parser:
             for line in f:
                 self.content += line
     def __parse(self):
-        h = re.findall(Parser.patterns['heading'], self.content)
-        l = re.findall(self.patterns['lines'], self.content)
-        b = re.findall(self.patterns['bold'], self.content)
         convert = ""
         contained = False
         buffer = 0
@@ -38,8 +35,9 @@ class Parser:
                 #check if matches heading regex
                 heading = Parser.patterns['heading'].match(self.content[i:])
                 line = Parser.patterns['lines'].match(self.content[i:])
+                styled = Parser.patterns['text_styles'].match(self.content[i:])
                 if heading or line or (heading == None and line == None and i == len(self.content) - 1 ):
-                    html_paragraph = f"<p>\n{curr_pg}</p>"
+                    html_paragraph = f"<p>\n{curr_pg}\n</p>"
                     print(html_paragraph)
                     curr_pg = ""
                     contained = True
@@ -54,7 +52,17 @@ class Parser:
                     contained = True
                     continue
                 elif line:
-                    print(line)
+                    buffer = 3
+                    html_line = "<div class=\"lineclass\"><div>"
+                    print(html_line)
+                    contained = True
+                    continue
+                elif styled and not line:
+                    depth = styled.group().count("*")
+                    styled_txt  = styled.group()[depth//2:len(styled.group())-depth//2]
+                    buffer = depth + len(styled_txt)
+                    html_styled = f'''<span>\n{styled_txt}\n<\span>'''
+                    print(html_styled)
                     contained = True
                     continue
                 else:
