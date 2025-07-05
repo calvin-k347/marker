@@ -1,7 +1,7 @@
 import re
 class Parser:
     patterns = {
-        "heading": re.compile("#{1,3}+(.+)"),
+        "heading": re.compile(r"#{1,3}+(.+)"),
         "lines": re.compile(r"-{3}|\*{3}|_{3}"),
         "bold": re.compile(r"\*\*(.+?)\*\*")
     }
@@ -31,22 +31,40 @@ class Parser:
         b = re.findall(self.patterns['bold'], self.content)
         convert = ""
         contained = False
+        buffer = 0
+        curr_pg = ""
         for i in range(len(self.content)):
             if not contained:
                 #check if matches heading regex
                 heading = Parser.patterns['heading'].match(self.content[i:])
+                line = Parser.patterns['lines'].match(self.content[i:])
+                if heading or line or (heading == None and line == None and i == len(self.content) - 1 ):
+                    html_paragraph = f"<p>\n{curr_pg}</p>"
+                    print(html_paragraph)
+                    curr_pg = ""
+                    contained = True
                 if heading:
                     depth = heading.group().count("#")
-                    html_heading = f'''<h{depth}>\n{heading.group()[depth:]}\n<h{depth}>
+                    heading_txt = heading.group()[depth:]
+                    #print(f"\n my depth is {depth} and my text is {heading_txt}. this comes from {heading.group()}")
+                    buffer = depth + len(heading_txt)
+                    html_heading = f'''<h{depth}>\n{heading_txt}\n<h{depth}>
                     '''
                     print(html_heading)
                     contained = True
                     continue
-                line = Parser.patterns['lines'].match(self.content[i:])
-                if line:
+                elif line:
                     print(line)
                     contained = True
                     continue
+                else:
+                    curr_pg += self.content[i]
+            else:
+                #print(f"buffer is: {buffer}, char is {self.content[i]}")
+                if buffer > 1:
+                    buffer -= 1
+                else:
+                    contained = False
                 
 
 
