@@ -38,6 +38,7 @@ class Parser:
                 styled = Parser.patterns['text_styles'].match(self.content[i:])
                 if heading or line or (heading == None and line == None and i == len(self.content) - 1 ):
                     html_paragraph = f"<p>\n{curr_pg}\n</p>"
+                    convert += html_paragraph
                     print(html_paragraph)
                     curr_pg = ""
                     contained = True
@@ -46,23 +47,26 @@ class Parser:
                     heading_txt = heading.group()[depth:]
                     #print(f"\n my depth is {depth} and my text is {heading_txt}. this comes from {heading.group()}")
                     buffer = depth + len(heading_txt)
-                    html_heading = f'''<h{depth}>\n{heading_txt}\n<h{depth}>
+                    html_heading = f'''<h{depth}>\n{heading_txt}\n</h{depth}>
                     '''
                     print(html_heading)
+                    convert += html_heading
                     contained = True
                     continue
                 elif line:
                     buffer = 3
-                    html_line = "<div class=\"lineclass\"><div>"
+                    html_line = "<div class=\"lineclass\"></div>"
                     print(html_line)
+                    convert += html_line
                     contained = True
                     continue
                 elif styled and not line:
                     depth = styled.group().count("*")
                     styled_txt  = styled.group()[depth//2:len(styled.group())-depth//2]
                     buffer = depth + len(styled_txt)
-                    html_styled = f'''<span>\n{styled_txt}\n<\span>'''
+                    html_styled = f'''<span>\n{styled_txt}\n</span>'''
                     print(html_styled)
+                    convert += html_styled
                     contained = True
                     continue
                 else:
@@ -73,13 +77,9 @@ class Parser:
                     buffer -= 1
                 else:
                     contained = False
-                
-
-
-
         convertion = Parser.boiler_plate[0:190] + convert + Parser.boiler_plate[190:]
         with open("new.html", "w") as f:
-            pass
+            f.write(convertion)
         #print(h)
         #print(l)
         #print(b)
