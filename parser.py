@@ -31,8 +31,7 @@ class Parser:
             for line in f:
                 self.content += line
     def __parse(self):
-        #convert = '''\t<div class="grid">\n\t'''
-        convert = ""
+        convert = '''\t<div class="grid mt-5 justify-center items-center">\n\t'''
         contained = False
         buffer = 0
         curr_pg = ""
@@ -55,7 +54,7 @@ class Parser:
                             html_paragraph += "<br></br>"
                         convert += html_paragraph
                         print(html_paragraph)
-                        curr_pg = "\n"
+                        curr_pg = ""
                         buffer = 0
                         contained = True
                 if heading:
@@ -78,7 +77,7 @@ class Parser:
                     continue
                 elif line:
                     buffer = len(line.group()) -1
-                    html_line = "<div class=\"lineclass\"></div>"
+                    html_line = "<div class=\"w-full border-dotted border-b-4 mt-2 mb-2\"></div>"
                     convert += html_line
                     print(html_line)
                     contained = True
@@ -98,21 +97,15 @@ class Parser:
                     
  
                     curr_pg += html_styled
-                    print("aaa\n", curr_pg)
                     buffer = len(styled.group()) -2
+                    print("styled curr pg: ", curr_pg)
                     contained = True
                 else:
                     curr_pg += self.content[i]
             else:
                 print(f"buffer is: {buffer}, char is {self.content[i]}")
-                if buffer >= 1:
-                    if curr_pg != "":
-                        print("this is the current pg: ", curr_pg)
-                        convert += f'''<p class="text-center">{curr_pg}</p>'''
-                        curr_pg = ""
-                        
-                    if curr_pg == "":
-                        buffer -= 1
+                if buffer >= 1: 
+                    buffer -= 1
                 else:
                     contained = False
         #convert  += '''</div>'''
