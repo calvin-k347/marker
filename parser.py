@@ -20,7 +20,6 @@ class Parser:
     <title>Document</title>
 </head>
 <body>
-    
 </body>
 </html>
 ''' 
@@ -32,6 +31,7 @@ class Parser:
             for line in f:
                 self.content += line
     def __parse(self):
+        #convert = '''\t<div class="grid">\n\t'''
         convert = ""
         contained = False
         buffer = 0
@@ -50,7 +50,7 @@ class Parser:
                 nl = Parser.patterns['new_line'].match(self.content[i:])
                 if heading or line or nl or (heading == None and line == None and i == len(self.content) - 1 ):
                     if curr_pg != "":
-                        html_paragraph = f"<p>\n{curr_pg}\n</p>"
+                        html_paragraph = f"<p class=\"text-center\">\n{curr_pg}\n</p>"
                         if nl:
                             html_paragraph += "<br></br>"
                         convert += html_paragraph
@@ -70,7 +70,7 @@ class Parser:
 
                     #print(f"\n my depth is {depth} and my text is {heading_txt}. this comes from {heading.group()}")
                     buffer = len(heading.group())-1
-                    html_heading = f'''<h{depth} class="{style}">\n{heading_txt}\n</h{depth}>
+                    html_heading = f'''<h{depth} class="{style} text-center">\n{heading_txt}\n</h{depth}>
                     '''
                     convert += html_heading
                     print(html_heading)
@@ -107,14 +107,15 @@ class Parser:
                 print(f"buffer is: {buffer}, char is {self.content[i]}")
                 if buffer >= 1:
                     if curr_pg != "":
-                        convert += curr_pg
+                        print("this is the current pg: ", curr_pg)
+                        convert += f'''<p class="text-center">{curr_pg}</p>'''
                         curr_pg = ""
                         
                     if curr_pg == "":
                         buffer -= 1
                 else:
                     contained = False
-            
+        #convert  += '''</div>'''
         convertion = Parser.boiler_plate[0:238] + convert + Parser.boiler_plate[238:]
         with open("new.html", "w") as f:
             f.write(convertion)
