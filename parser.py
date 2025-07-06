@@ -3,8 +3,12 @@ class Parser:
     patterns = {
         "heading": re.compile(r"#{1,3}+(.+)"),
         "lines": re.compile(r"-{3}|\*{3}|_{3}"),
-        "text_styles": re.compile(r"\*(.+)\*|\*\*(.+)\*\*|\*\*\*(.+)\*\*\*")
+        "text_styles": re.compile(r"\*(.+)\*|\*\*(.+)\*\*|\*\*\*(.+)\*\*\*"),
+        "center": r"\c",
+        "red": r"\r",
+        "blue": r"\b",
     }
+
     boiler_plate = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +40,7 @@ class Parser:
                 heading = Parser.patterns['heading'].match(self.content[i:])
                 line = Parser.patterns['lines'].match(self.content[i:])
                 styled = Parser.patterns['text_styles'].match(self.content[i:])
-                if heading or line or (heading == None and line == None and i == len(self.content) - 1 ):
+                if heading or line or (heading == None and line == None and i == len(self.content) - 1 ) and curr_pg != "":
                     html_paragraph = f"<p>\n{curr_pg}\n</p>"
                     convert += html_paragraph
                     print(html_paragraph)
@@ -54,18 +58,24 @@ class Parser:
                     contained = True
                     continue
                 elif line:
-                    buffer = 3
+                    buffer = 4
                     html_line = "<div class=\"lineclass\"></div>"
                     print(html_line)
                     convert += html_line
                     contained = True
                     continue
                 elif styled and not line:
-                    depth = styled.group().count("*")
-                    print(depth, "depth", styled.group())
-                    styled_txt  = styled.group()[depth//2:len(styled.group())-depth//2]
+                    depth = styled.group().count("*") // 2
+                    
+                    styled_txt  = styled.group()[depth:len(styled.group())-depth]
                     buffer = len(styled.group())
-                    html_styled = f'''\n<span>\n{styled_txt}\n</span>\n'''
+                    if depth == 1:
+                        style = "italic"
+                    elif depth == 2:
+                        style = "font-bold"
+                    elif depth == 3:
+                        style = "italic font-bold"
+                    html_styled = f'''\n\t<span class="{style}">\n{styled_txt}\n</span>\n'''
                     if curr_pg == "":
                         convert+= html_styled
                     else:
@@ -82,10 +92,6 @@ class Parser:
         convertion = Parser.boiler_plate[0:190] + convert + Parser.boiler_plate[190:]
         with open("new.html", "w") as f:
             f.write(convertion)
-        #print(h)
-        #print(l)
-        #print(b)
-        #print(convertion)
     def method(self):
         self.__read()
         self.__parse()

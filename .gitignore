@@ -1,3 +1,5 @@
 test*.md
 __pycache__/
 *.html
+*.js
+*.css
