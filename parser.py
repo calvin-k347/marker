@@ -1,4 +1,4 @@
-import re
+import re, os
 class Parser:
     patterns = {
         "heading": re.compile(r"#{1,3}+(.+)"),
@@ -95,6 +95,8 @@ class Parser:
             f.write(convertion)
         with open("input.css", "w") as f:
             f.write("@import \"tailwindcss\";")
+        return (os.getcwd() +r"\new.html")
     def method(self):
         self.__read()
-        self.__parse()
+        return self.__parse()
+        
