@@ -4,6 +4,7 @@ class Parser:
         "heading": re.compile(r"#{1,3}+(.+)"),
         "lines": re.compile(r"-{3}|\*{3}|_{3}"),
         "text_styles": re.compile(r"\*(.+)\*|\*\*(.+)\*\*|\*\*\*(.+)\*\*\*"),
+        "new_line": re.compile(r"\n\n"),
         "center": r"\c",
         "red": r"\r",
         "blue": r"\b",
@@ -41,12 +42,19 @@ class Parser:
                 heading = Parser.patterns['heading'].match(self.content[i:])
                 line = Parser.patterns['lines'].match(self.content[i:])
                 styled = Parser.patterns['text_styles'].match(self.content[i:])
+                nl = Parser.patterns['new_line'].match(self.content[i:])
                 if heading or line or (heading == None and line == None and i == len(self.content) - 1 ) and curr_pg != "":
                     html_paragraph = f"<p>\n{curr_pg}\n</p>"
                     convert += html_paragraph
                     print(html_paragraph)
                     curr_pg = ""
                     contained = True
+                if nl:
+                    buffer = 1
+                    html_break = f"<br></br>"
+                    convert += html_break
+                    contained = True
+                    continue
                 if heading:
                     depth = heading.group().count("#")
                     heading_txt = heading.group()[depth:]
