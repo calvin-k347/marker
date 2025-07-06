@@ -2,7 +2,7 @@ import re, os
 class Parser:
     patterns = {
         "heading": re.compile(r"#{1,3}+(.+)"),
-        "lines": re.compile(r"-{3}|\*{3}|_{3}"),
+        "lines": re.compile(r"-{3}|_{3}"),
         "text_styles": re.compile(r"\*\*\*(.+)\*\*\*|\*\*(.+)\*\*|\*(.+)\*"),
         "new_line": re.compile(r"\n\n"),
         "center": r"\c",
