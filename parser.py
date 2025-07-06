@@ -43,33 +43,34 @@ class Parser:
                 line = Parser.patterns['lines'].match(self.content[i:])
                 styled = Parser.patterns['text_styles'].match(self.content[i:])
                 nl = Parser.patterns['new_line'].match(self.content[i:])
-                if heading or line or (heading == None and line == None and i == len(self.content) - 1 ) and curr_pg != "":
+                if heading or line or nl or (heading == None and line == None and i == len(self.content) - 1 ) and curr_pg != "":
                     html_paragraph = f"<p>\n{curr_pg}\n</p>"
+                    if nl:
+                        html_paragraph += "<br></br>"
                     convert += html_paragraph
                     print(html_paragraph)
                     curr_pg = ""
                     contained = True
-                if nl:
-                    buffer = 1
-                    html_break = f"<br></br>"
-                    convert += html_break
-                    contained = True
-                    continue
                 if heading:
                     depth = heading.group().count("#")
                     heading_txt = heading.group()[depth:]
+                    if depth == 1:
+                        style = "text-2xl"
+                    elif depth == 2:
+                        style = "text-xl"
+                    else:
+                        style = "text-lg"
+
                     #print(f"\n my depth is {depth} and my text is {heading_txt}. this comes from {heading.group()}")
                     buffer = depth + len(heading_txt)
-                    html_heading = f'''<h{depth}>\n{heading_txt}\n</h{depth}>
+                    html_heading = f'''<h{depth} class="{style}">\n{heading_txt}\n</h{depth}>
                     '''
-                    print(html_heading)
                     convert += html_heading
                     contained = True
                     continue
                 elif line:
                     buffer = 4
                     html_line = "<div class=\"lineclass\"></div>"
-                    print(html_line)
                     convert += html_line
                     contained = True
                     continue
@@ -93,7 +94,7 @@ class Parser:
                 else:
                     curr_pg += self.content[i]
             else:
-                print(f"buffer is: {buffer}, char is {self.content[i]}")
+                #print(f"buffer is: {buffer}, char is {self.content[i]}")
                 if buffer > 1:
                     buffer -= 1
                 else:
