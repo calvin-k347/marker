@@ -3,7 +3,7 @@ class Parser:
     patterns = {
         "heading": re.compile(r"#{1,3}+(.+)"),
         "lines": re.compile(r"-{3}|\*{3}|_{3}"),
-        "text_styles": re.compile(r"\*(.+)\*|\*\*(.+)\*\*|\*\*\*(.+)\*\*\*"),
+        "text_styles": re.compile(r"\*\*\*(.+)\*\*\*|\*\*(.+)\*\*|\*(.+)\*"),
         "new_line": re.compile(r"\n\n"),
         "center": r"\c",
         "red": r"\r",
@@ -37,20 +37,27 @@ class Parser:
         buffer = 0
         curr_pg = ""
         for i in range(len(self.content)):
+            if self.content[i] == "\n":
+                print("NL")
+            else:
+                print(self.content[i])
+            #print(curr_pg)
             if not contained:
                 #check if matches heading regex
                 heading = Parser.patterns['heading'].match(self.content[i:])
                 line = Parser.patterns['lines'].match(self.content[i:])
                 styled = Parser.patterns['text_styles'].match(self.content[i:])
                 nl = Parser.patterns['new_line'].match(self.content[i:])
-                if heading or line or nl or (heading == None and line == None and i == len(self.content) - 1 ) and curr_pg != "":
-                    html_paragraph = f"<p>\n{curr_pg}\n</p>"
-                    if nl:
-                        html_paragraph += "<br></br>"
-                    convert += html_paragraph
-                    print(html_paragraph)
-                    curr_pg = ""
-                    contained = True
+                if heading or line or nl or (heading == None and line == None and i == len(self.content) - 1 ):
+                    if curr_pg != "":
+                        html_paragraph = f"<p>\n{curr_pg}\n</p>"
+                        if nl:
+                            html_paragraph += "<br></br>"
+                        convert += html_paragraph
+                        print(html_paragraph)
+                        curr_pg = "\n"
+                        buffer = 0
+                        contained = True
                 if heading:
                     depth = heading.group().count("#")
                     heading_txt = heading.group()[depth:]
@@ -66,19 +73,21 @@ class Parser:
                     html_heading = f'''<h{depth} class="{style}">\n{heading_txt}\n</h{depth}>
                     '''
                     convert += html_heading
+                    print(html_heading)
                     contained = True
                     continue
                 elif line:
                     buffer = 4
                     html_line = "<div class=\"lineclass\"></div>"
                     convert += html_line
+                    print(html_line)
                     contained = True
                     continue
                 elif styled and not line:
                     depth = styled.group().count("*") // 2
                     
                     styled_txt  = styled.group()[depth:len(styled.group())-depth]
-                    buffer = len(styled.group())
+                    
                     if depth == 1:
                         style = "italic"
                     elif depth == 2:
@@ -86,15 +95,16 @@ class Parser:
                     elif depth == 3:
                         style = "italic font-bold"
                     html_styled = f'''\n\t<span class="{style}">\n{styled_txt}\n</span>\n'''
-                    if curr_pg == "":
-                        convert+= html_styled
-                    else:
-                        curr_pg += html_styled
+                    
+ 
+                    curr_pg += html_styled
+                    print("aaa\n", curr_pg, html_styled, styled.group())
+                    buffer = len(styled.group()) -2
                     contained = True
                 else:
                     curr_pg += self.content[i]
             else:
-                #print(f"buffer is: {buffer}, char is {self.content[i]}")
+                print(f"buffer is: {buffer}, char is {self.content[i]}")
                 if buffer > 1:
                     buffer -= 1
                 else:
