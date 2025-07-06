@@ -15,6 +15,7 @@ class Parser:
     <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./output.css" rel="stylesheet">
     <title>Document</title>
 </head>
 <body>
@@ -89,9 +90,11 @@ class Parser:
                     buffer -= 1
                 else:
                     contained = False
-        convertion = Parser.boiler_plate[0:190] + convert + Parser.boiler_plate[190:]
+        convertion = Parser.boiler_plate[0:238] + convert + Parser.boiler_plate[238:]
         with open("new.html", "w") as f:
             f.write(convertion)
+        with open("input.css", "w") as f:
+            f.write("@import \"tailwindcss\";")
     def method(self):
         self.__read()
         self.__parse()
