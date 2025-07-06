@@ -47,7 +47,7 @@ class Parser:
                 line = Parser.patterns['lines'].match(self.content[i:])
                 styled = Parser.patterns['text_styles'].match(self.content[i:])
                 nl = Parser.patterns['new_line'].match(self.content[i:])
-                if heading or line or nl or (heading == None and line == None and i == len(self.content) - 1 ):
+                if heading or line or nl or ( i == len(self.content) - 1 ):
                     if curr_pg != "":
                         html_paragraph = f"<p class=\"text-center\">\n{curr_pg}\n</p>"
                         if nl:
@@ -107,6 +107,8 @@ class Parser:
                 if buffer >= 1: 
                     buffer -= 1
                 else:
+                    if curr_pg and i == len(self.content) -1:
+                        convert += f'''<p class="text-center">{curr_pg}</p>'''
                     contained = False
         #convert  += '''</div>'''
         convertion = Parser.boiler_plate[0:238] + convert + Parser.boiler_plate[238:]
