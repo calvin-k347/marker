@@ -62,17 +62,19 @@ class Parser:
                     continue
                 elif styled and not line:
                     depth = styled.group().count("*")
+                    print(depth, "depth", styled.group())
                     styled_txt  = styled.group()[depth//2:len(styled.group())-depth//2]
-                    buffer = depth + len(styled_txt)
-                    html_styled = f'''<span>\n{styled_txt}\n</span>'''
-                    print(html_styled)
-                    convert += html_styled
+                    buffer = len(styled.group())
+                    html_styled = f'''\n<span>\n{styled_txt}\n</span>\n'''
+                    if curr_pg == "":
+                        convert+= html_styled
+                    else:
+                        curr_pg += html_styled
                     contained = True
-                    continue
                 else:
                     curr_pg += self.content[i]
             else:
-                #print(f"buffer is: {buffer}, char is {self.content[i]}")
+                print(f"buffer is: {buffer}, char is {self.content[i]}")
                 if buffer > 1:
                     buffer -= 1
                 else:
