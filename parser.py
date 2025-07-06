@@ -69,7 +69,7 @@ class Parser:
                         style = "text-lg"
 
                     #print(f"\n my depth is {depth} and my text is {heading_txt}. this comes from {heading.group()}")
-                    buffer = depth + len(heading_txt)
+                    buffer = len(heading.group())-1
                     html_heading = f'''<h{depth} class="{style}">\n{heading_txt}\n</h{depth}>
                     '''
                     convert += html_heading
@@ -77,7 +77,7 @@ class Parser:
                     contained = True
                     continue
                 elif line:
-                    buffer = 4
+                    buffer = len(line.group()) -1
                     html_line = "<div class=\"lineclass\"></div>"
                     convert += html_line
                     print(html_line)
@@ -98,17 +98,23 @@ class Parser:
                     
  
                     curr_pg += html_styled
-                    print("aaa\n", curr_pg, html_styled, styled.group())
+                    print("aaa\n", curr_pg)
                     buffer = len(styled.group()) -2
                     contained = True
                 else:
                     curr_pg += self.content[i]
             else:
                 print(f"buffer is: {buffer}, char is {self.content[i]}")
-                if buffer > 1:
-                    buffer -= 1
+                if buffer >= 1:
+                    if curr_pg != "":
+                        convert += curr_pg
+                        curr_pg = ""
+                        
+                    if curr_pg == "":
+                        buffer -= 1
                 else:
                     contained = False
+            
         convertion = Parser.boiler_plate[0:238] + convert + Parser.boiler_plate[238:]
         with open("new.html", "w") as f:
             f.write(convertion)
