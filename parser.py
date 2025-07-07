@@ -51,7 +51,7 @@ class Parser:
                     if curr_pg != "":
                         html_paragraph = f"<p class=\"text-center\">\n{curr_pg}\n</p>"
                         if nl:
-                            html_paragraph += "<br></br>"
+                            html_paragraph += "<br>"
                         convert += html_paragraph
                         print(html_paragraph)
                         curr_pg = ""
