@@ -30,7 +30,7 @@ class Parser:
         with open(self.file) as f:
             for line in f:
                 self.content += line
-    def __parse(self):
+    def __parse(self, n):
         convert = '''\t<div class="grid mt-5 justify-center items-center">\n\t'''
         contained = False
         buffer = 0
@@ -117,12 +117,12 @@ class Parser:
             os.makedirs("static/styles")
         except FileExistsError:
             pass
-        with open("templates/new.html", "w") as f:
+        with open(f"templates/new{n}.html", "w") as f:
             f.write(convertion)
         with open("static/styles/input.css", "w") as f:
             f.write("@import \"tailwindcss\";")
-        return (os.getcwd() +r"\templates\new.html")
-    def method(self):
+        return (os.getcwd() +f"\\templates\\new{n}.html")
+    def method(self, num):
         self.__read()
-        return self.__parse()
+        return self.__parse(num)
         
