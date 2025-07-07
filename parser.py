@@ -16,7 +16,7 @@ class Parser:
     <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="./output.css" rel="stylesheet">
+    <link href="../static/styles/output.css" rel="stylesheet">
     <title>Document</title>
 </head>
 <body>
@@ -111,12 +111,17 @@ class Parser:
                         convert += f'''<p class="text-center">{curr_pg}</p>'''
                     contained = False
         #convert  += '''</div>'''
-        convertion = Parser.boiler_plate[0:238] + convert + Parser.boiler_plate[238:]
-        with open("new.html", "w") as f:
+        convertion = Parser.boiler_plate[0:252] + convert + Parser.boiler_plate[252:]
+        try:
+            os.mkdir("templates")
+            os.makedirs("static/styles")
+        except FileExistsError:
+            pass
+        with open("templates/new.html", "w") as f:
             f.write(convertion)
-        with open("input.css", "w") as f:
+        with open("static/styles/input.css", "w") as f:
             f.write("@import \"tailwindcss\";")
-        return (os.getcwd() +r"\new.html")
+        return (os.getcwd() +r"\templates\new.html")
     def method(self):
         self.__read()
         return self.__parse()
