@@ -4,8 +4,7 @@ from parser import Parser
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 import time
-from server import app
-
+from server import app, home
 md_files = []
 def main():
     for i,arg in enumerate(sys.argv[1:]):
@@ -17,7 +16,6 @@ def main():
 class MardownWatcher(FileSystemEventHandler):
     def on_modified(self, event):
         if event.src_path in md_files:
-            print(f"Text file modified: {event.src_path}")
             main()
 if __name__ == "__main__":
     main()
