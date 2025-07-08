@@ -8,6 +8,7 @@ class Parser:
         "center": r"\c",
         "red": r"\r",
         "blue": r"\b",
+        "img": re.compile(r"![image](.+)")
     }
 
     boiler_plate = '''
@@ -47,6 +48,7 @@ class Parser:
                 line = Parser.patterns['lines'].match(self.content[i:])
                 styled = Parser.patterns['text_styles'].match(self.content[i:])
                 nl = Parser.patterns['new_line'].match(self.content[i:])
+                image = Parser.patterns['img'].match(self.content[i:])
                 if heading or line or nl or ( i == len(self.content) - 1 ):
                     if curr_pg != "":
                         html_paragraph = f"<p class=\"text-center\">\n{curr_pg}\n</p>"
@@ -100,6 +102,13 @@ class Parser:
                     buffer = len(styled.group()) -2
                     print("styled curr pg: ", curr_pg)
                     contained = True
+                elif image:
+                    url = image.group()[image.group().index("[")+1:image.group().index("]")]
+                    html_img = f'''<div class="w-50 h-50 mx-auto"><img class="w-full h-full object-contain" src="{url}" alt="alr"></div>'''
+                    convert += html_img
+                    buffer += len(image.group()) -1
+                    contained = True
+
                 else:
                     curr_pg += self.content[i]
             else:
