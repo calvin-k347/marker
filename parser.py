@@ -5,9 +5,7 @@ class Parser:
         "lines": re.compile(r"-{3}|_{3}"),
         "text_styles": re.compile(r"\*\*\*(.+)\*\*\*|\*\*(.+)\*\*|\*(.+)\*"),
         "new_line": re.compile(r"\n\n"),
-        "center": r"\c",
-        "red": r"\r",
-        "blue": r"\b",
+        "formats": re.compile(r"t"),
         "img": re.compile(r"![image](.+)"),
         "list": re.compile(r"-{1} .+")
     }
@@ -33,7 +31,7 @@ class Parser:
             for line in f:
                 self.content += line
     def __parse(self, n):
-        convert = '''\t<div class="grid mt-5 w-1/2 mx-auto justify-center items-center">\n\t'''
+        convert = '''\t<div class="grid mt-5 md:w-1/2  md:mx-auto justify-center items-center">\n\t'''
         contained = False
         buffer = 0
         curr_pg = ""
@@ -82,7 +80,7 @@ class Parser:
                     continue
                 elif line:
                     buffer = len(line.group()) -1
-                    html_line = "<div class=\"w-full border-dotted border-b-4 mt-2 mb-2\"></div>"
+                    html_line = f"<div class=\"w-full border-dotted border-b-4 mt-2 mb-2\"></div>"
                     convert += html_line
                     print(html_line)
                     contained = True
@@ -113,10 +111,14 @@ class Parser:
                     contained = True
                 elif list:
                     li = list.group()[1:]
-                    curr_pg += f'''<li class="ml-4">{li}</li>'''
-                    buffer += len(li)
-                    listed = True
-                    contained = True
+                    
+                    if "*" in li:
+                        buffer += li.index("*")
+                        curr_pg += '''<li class="ml-4">'''
+
+                    else:
+                        buffer += len(li)
+                        curr_pg += '''<li class="ml-4">'''
         
                 else:
                     curr_pg += self.content[i]
