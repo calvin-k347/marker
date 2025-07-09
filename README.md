@@ -15,5 +15,5 @@ run `npx @tailwindcss/cli -i ./static/styles/input.css -o ./static/styles/output
 run `python main.py your_file.md`
 
 ## Example 
-![example Markdown](markdown_example.png)
-![example Html preview](htmlpreview.png)
+![markdown example](markdown.png)
+![html example](htmlpreview.png)
