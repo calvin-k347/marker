@@ -8,7 +8,8 @@ class Parser:
         "center": r"\c",
         "red": r"\r",
         "blue": r"\b",
-        "img": re.compile(r"![image](.+)")
+        "img": re.compile(r"![image](.+)"),
+        "list": re.compile(r"-{1} .+")
     }
 
     boiler_plate = '''
@@ -32,10 +33,11 @@ class Parser:
             for line in f:
                 self.content += line
     def __parse(self, n):
-        convert = '''\t<div class="grid mt-5 justify-center items-center">\n\t'''
+        convert = '''\t<div class="grid mt-5 w-1/2 mx-auto justify-center items-center">\n\t'''
         contained = False
         buffer = 0
         curr_pg = ""
+        listed = False
         for i in range(len(self.content)):
             if self.content[i] == "\n":
                 print("NL")
@@ -49,9 +51,10 @@ class Parser:
                 styled = Parser.patterns['text_styles'].match(self.content[i:])
                 nl = Parser.patterns['new_line'].match(self.content[i:])
                 image = Parser.patterns['img'].match(self.content[i:])
+                list = Parser.patterns['list'].match(self.content[i:])
                 if heading or line or nl or ( i == len(self.content) - 1 ):
                     if curr_pg != "":
-                        html_paragraph = f"<p class=\"text-center\">\n{curr_pg}\n</p>"
+                        html_paragraph = f'''<p class="p-2">\n{curr_pg}\n</p>'''
                         if nl:
                             html_paragraph += "<br>"
                         convert += html_paragraph
@@ -71,7 +74,7 @@ class Parser:
 
                     #print(f"\n my depth is {depth} and my text is {heading_txt}. this comes from {heading.group()}")
                     buffer = len(heading.group())-1
-                    html_heading = f'''<h{depth} class="{style} text-center">\n{heading_txt}\n</h{depth}>
+                    html_heading = f'''<h{depth} class="{style} {"text-center" if depth == 1 else ""}">\n{heading_txt}\n</h{depth}>
                     '''
                     convert += html_heading
                     print(html_heading)
@@ -104,11 +107,17 @@ class Parser:
                     contained = True
                 elif image:
                     url = image.group()[image.group().index("[")+1:image.group().index("]")]
-                    html_img = f'''<div class="w-50 h-50 mx-auto"><img class="w-full h-full object-contain" src="{url}" alt="alr"></div>'''
+                    html_img = f'''<div class="w-50 h-50 mx-auto my-2"><img class="w-full h-full object-contain" src="{url}" alt="alr"></div>'''
                     convert += html_img
                     buffer += len(image.group()) -1
                     contained = True
-
+                elif list:
+                    li = list.group()[1:]
+                    curr_pg += f'''<li class="ml-4">{li}</li>'''
+                    buffer += len(li)
+                    listed = True
+                    contained = True
+        
                 else:
                     curr_pg += self.content[i]
             else:
@@ -117,7 +126,7 @@ class Parser:
                     buffer -= 1
                 else:
                     if curr_pg and i == len(self.content) -1:
-                        convert += f'''<p class="text-center">{curr_pg}</p>'''
+                        convert += f'''<p class="">{curr_pg}</p>'''
                     contained = False
         #convert  += '''</div>'''
         convertion = Parser.boiler_plate[0:252] + convert + Parser.boiler_plate[252:]
