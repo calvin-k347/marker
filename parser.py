@@ -7,10 +7,11 @@ class Parser:
         "new_line": re.compile(r"\n\n"),
         "formats": re.compile(r"t"),
         "img": re.compile(r"![image](.+)"),
-        "list": re.compile(r"-{1} .+")
+        "list": re.compile(r"-{1} .+"),
+        "code": re.compile(r"`.+`")
     }
 
-    boiler_plate = '''
+    boiler_plate_top = '''
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -20,9 +21,11 @@ class Parser:
     <title>Document</title>
 </head>
 <body>
+''' 
+    boiler_plate_bottom = '''
 </body>
 </html>
-''' 
+    '''
     def __init__(self, file):
         self.file = file
         self.content = ""
@@ -49,10 +52,12 @@ class Parser:
                 styled = Parser.patterns['text_styles'].match(self.content[i:])
                 nl = Parser.patterns['new_line'].match(self.content[i:])
                 image = Parser.patterns['img'].match(self.content[i:])
-                list = Parser.patterns['list'].match(self.content[i:])
+                listing = Parser.patterns['list'].match(self.content[i:])
+                code = Parser.patterns['code'].match(self.content[i:])
                 if heading or line or nl or ( i == len(self.content) - 1 ):
                     if curr_pg != "":
-                        html_paragraph = f'''<p class="p-2">\n{curr_pg}\n</p>'''
+                        html_paragraph = f'''<p class="p-2">\n{curr_pg}\n</p>''' if not listed else f'''{curr_pg} </li>'''
+                        listed = False
                         if nl:
                             html_paragraph += "<br>"
                         convert += html_paragraph
@@ -109,8 +114,8 @@ class Parser:
                     convert += html_img
                     buffer += len(image.group()) -1
                     contained = True
-                elif list:
-                    li = list.group()[1:]
+                elif listing:
+                    li = listing.group()[1:]
                     
                     if "*" in li:
                         buffer += li.index("*")
@@ -119,7 +124,15 @@ class Parser:
                     else:
                         buffer += len(li)
                         curr_pg += '''<li class="ml-4">'''
-        
+                    listed = True
+
+                elif code:
+                    indent = f"ml-{code.group().count("\t") *2}"
+
+
+                    convert += f'''<div class="w-full bg-gray-200"><p class="font-mono p-2">{code.group()[1:-1]}</p></div>'''
+                    buffer += len(code.group()) - 1 
+                    contained = True
                 else:
                     curr_pg += self.content[i]
             else:
@@ -130,8 +143,8 @@ class Parser:
                     if curr_pg and i == len(self.content) -1:
                         convert += f'''<p class="">{curr_pg}</p>'''
                     contained = False
-        #convert  += '''</div>'''
-        convertion = Parser.boiler_plate[0:252] + convert + Parser.boiler_plate[252:]
+        convert  += '''</div>'''
+        convertion = Parser.boiler_plate_top + convert + Parser.boiler_plate_bottom
         try:
             os.mkdir("templates")
             os.makedirs("static/styles")
