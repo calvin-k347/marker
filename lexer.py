@@ -23,7 +23,7 @@ class Lexer:
                             if stripped_line == "---":
                                 token = Token("line", "---")
                             elif len(stripped_line) > 2 and stripped_line[0:2] == "- ":
-                                token = Token("list-item", stripped_line[stripped_line.index("-"):])
+                                token = Token("list-item", stripped_line[1:])
                             q.append(token)
                         case "":
                             q.append(Token("break", ""))
@@ -57,8 +57,7 @@ class Lexer:
                             if literal_reg:
                                 q.append(Token("paragraph", literal_reg))
                                 literal_reg = ""
-        for t in q:
-            print(t)
+        return q
 
                             
                                 
