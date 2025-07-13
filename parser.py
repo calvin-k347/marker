@@ -43,7 +43,8 @@ class Parser:
         "code": False, 
         "list-item": False,
         "line": False,
-        "break": False
+        "break": False,
+        "image":False
     }
     def __inline(self, text):
         #TODO: check for inline styles 
@@ -54,7 +55,6 @@ class Parser:
         curr_pg = ""
         for i, token in enumerate(lexed):
             print(token)
-
             self.states[token.type] = True
             if token.type not in ["paragraph", "emphasis"] and curr_pg:
                 curr_pg += '''</p>'''
@@ -78,6 +78,8 @@ class Parser:
                 curr_pg += f'''<span class="{Parser.emphasis_styles[token.level]}">{token.value}</span>'''
             if self.states["break"]:
                 convert += "<br>"
+            if self.states["image"]:
+                convert += f'''<div class="w-50 h-50 mx-auto my-2"><img class="w-full h-full object-contain" src="{token.value[1]}" alt="{token.value[0]}"></div>'''
             self.states[token.type] = False
         convert  += '''</div>'''
         convertion = Parser.boiler_plate_top + convert + Parser.boiler_plate_bottom
