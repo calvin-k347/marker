@@ -33,7 +33,7 @@ class Lexer:
                                 if buffer:
                                     buffer -=1 
                                     continue
-                                if char not in ["*", "`", "\n"]:
+                                if char not in ["*", "`", "\n", "!"]:
                                     literal_reg += char
                                 elif char == "*":
                                     emph = re.search(r"\*\*\*(.+)\*\*\*|\*\*(.+)\*\*|\*(.+)\*", stripped_line)
@@ -54,9 +54,19 @@ class Lexer:
                                             literal_reg = ""
                                         q.append(Token("code", code.group()[1:-1]))
                                         buffer += len(code.group()) -1
+                                elif char == "!":
+                                    if (img := re.match(r"!\[(.*?)\]\((.*?)\)", stripped_line)):
+                                        alt = img.group()[img.group().index("[")+1: img.group().index("]")]
+                                        url = img.group()[img.group().index("(")+1: img.group().index(")")]
+                                        q.append(Token("image",[alt,url]))
+                                        buffer += len(img.group()) -1
+                                    else:
+                                        literal_reg += "!"
                             if literal_reg:
                                 q.append(Token("paragraph", literal_reg))
                                 literal_reg = ""
+        for t in q:
+            print(t)
         return q
 
                             
@@ -69,5 +79,3 @@ class Lexer:
 if __name__ == "__main__":
     l = Lexer("test4.md")
     l.lex()
-    t = "- things"
-    print(t[0:1])
