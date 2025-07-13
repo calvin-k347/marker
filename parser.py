@@ -2,13 +2,7 @@ import re, os
 from lexer import Lexer
 class Parser:
     patterns = {
-        "heading": re.compile(r"#{1,3}+(.+)"),
-        "lines": re.compile(r"-{3}|_{3}"),
-        "text_styles": re.compile(r"\*\*\*(.+)\*\*\*|\*\*(.+)\*\*|\*(.+)\*"),
-        "new_line": re.compile(r"\n\n"),
-        "formats": re.compile(r"t"),
-        "img": re.compile(r"![image](.+)"),
-        "list": re.compile(r"-{1} .+"),
+        "emphasis": [re.compile(r"\*\*\*(.+)\*\*\*|\*\*(.+)\*\*|\*(.+)\*"), ],
         "code": re.compile(r"`.+`")
     }
     heading_styles = {1: "text-2xl",
@@ -47,7 +41,10 @@ class Parser:
         "image":False
     }
     def __inline(self, text):
-        #TODO: check for inline styles 
+        text = re.sub(r'\*\*\*(.+?)\*\*\*', r'<span class="italic font-bold">\1</span>', text)
+        text = re.sub(r'\*\*(.+?)\*\*', r'<span class="font-bold">\1</span>', text)
+        text = re.sub(r'\*(.+?)\*', r'<span class="italic">\1</span>', text)
+        text = re.sub(r'`(.+?)`', r'<div class="w-full bg-gray-200"><p class="font-mono p-2">\1</p></div>', text)
         return text
     def __parse(self, n):
         convert = '''\t<div class="grid sm:w-4/5 md:w-1/2 mx-auto mt-5  items-center">\n\t'''
