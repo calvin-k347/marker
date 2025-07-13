@@ -14,8 +14,9 @@ class Parser:
     heading_styles = {1: "text-2xl",
                       2: "text-xl",
                       3:"text-lg"}
-    operators = ["#", "-", "'", "\n", "*"]
-    nestable_operators = operators[1:]
+    emphasis_styles = {1: "italic",
+                      2: "font-bold",
+                      3:"italic font-bold"}
     boiler_plate_top = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -25,7 +26,7 @@ class Parser:
     <link href="../static/styles/output.css" rel="stylesheet">
     <title>Document</title>
 </head>
-<body>
+<body class="w-full h-full">
 ''' 
     boiler_plate_bottom = '''
 </body>
@@ -48,15 +49,17 @@ class Parser:
         #TODO: check for inline styles 
         return text
     def __parse(self, n):
-        convert = '''\t<div class="grid mt-5 md:w-1/2  md:mx-auto justify-center items-center">\n\t'''
+        convert = '''\t<div class="grid sm:w-4/5 md:w-1/2 mx-auto mt-5  items-center">\n\t'''
         lexed = Lexer(self.file).lex()
         curr_pg = ""
         for i, token in enumerate(lexed):
             print(token)
 
             self.states[token.type] = True
-            if token.type != "paragraph" and curr_pg:
+            if token.type not in ["paragraph", "emphasis"] and curr_pg:
                 curr_pg += '''</p>'''
+                convert += curr_pg
+                curr_pg = ""
             if self.states["heading"]:
                 token.value = self.__inline(token.value)
                 convert += f'''<h{token.level} class="{Parser.heading_styles[token.level]}">{token.value}</h{token.level}>'''
@@ -67,13 +70,15 @@ class Parser:
             if self.states["code"]:
                 convert += f'''<div class="w-full bg-gray-200"><p class="font-mono p-2">{token.value}</p></div>'''
             if self.states["paragraph"]:
-                curr_pg += f'''<p> {token.value}'''
+                if "<p>" in curr_pg:
+                    curr_pg += f''' {token.value}'''
+                else:
+                    curr_pg += f'''<p> {token.value}'''
             if self.states["emphasis"]:
-                curr_pg += f'''<span class="font-bold">{token.value}</span>'''
+                curr_pg += f'''<span class="{Parser.emphasis_styles[token.level]}">{token.value}</span>'''
             if self.states["break"]:
                 convert += "<br>"
             self.states[token.type] = False
-            
         convert  += '''</div>'''
         convertion = Parser.boiler_plate_top + convert + Parser.boiler_plate_bottom
         try:
