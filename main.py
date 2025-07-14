@@ -1,9 +1,8 @@
 import sys
 import subprocess
 from parser import Parser
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 import time
+from livereload import Server
 from server import app, home
 md_files = []
 def main():
@@ -11,28 +10,11 @@ def main():
         p = Parser(arg)
         preview_path = p.method(i)
         md_files.append(".\\" + arg)
-        command = ["powershell.exe", "-File","./preview.ps1" ] + [preview_path]
-        #subprocess.run(command)
-class MardownWatcher(FileSystemEventHandler):
-    def on_modified(self, event):
-        if event.src_path in md_files:
-            main()
 if __name__ == "__main__":
-    main()
-    command = ["powershell.exe", "-File","./preview.ps1" ] + ["http://127.0.0.1:5000/0"]
+    command = ["powershell.exe", "-File","./preview.ps1" ] + ["http://127.0.0.1/0"]
+    server = Server(app.wsgi_app)
+    server.watch("*.md", func=main)
+    app.debug =True
     subprocess.run(command)
-    path = "."
-    event_handler = MardownWatcher()
-    observer = Observer()
-    observer.schedule(event_handler, path, recursive=True)
-    # Start the observer
-    observer.start()
-    print(f"Monitoring directory: {path}")
-    print(f"target files: {md_files}")
-    app.run(debug=True)
-    try:
-        while True:
-            time.sleep(1)
-    except KeyboardInterrupt:
-        observer.stop()
-    observer.join()
+    server.serve(liveport=35729, host='127.0.0.1', port=80)
+    
