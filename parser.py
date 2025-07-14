@@ -1,10 +1,6 @@
 import re, os
 from lexer import Lexer
 class Parser:
-    patterns = {
-        "emphasis": [re.compile(r"\*\*\*(.+)\*\*\*|\*\*(.+)\*\*|\*(.+)\*"), ],
-        "code": re.compile(r"`.+`")
-    }
     heading_styles = {1: "text-2xl",
                       2: "text-xl",
                       3:"text-lg"}
@@ -28,8 +24,6 @@ class Parser:
     '''
     def __init__(self, file):
         self.file = file
-        self.content = ""
-        self.stack = []
         self.states = {
         "heading": False,
         "emphasis": False,
@@ -78,6 +72,10 @@ class Parser:
             if self.states["image"]:
                 convert += f'''<div class="w-50 h-50 mx-auto my-2"><img class="w-full h-full object-contain" src="{token.value[1]}" alt="{token.value[0]}"></div>'''
             self.states[token.type] = False
+        if curr_pg:
+            curr_pg += '''</p>'''
+            convert += curr_pg
+            curr_pg = ""
         convert  += '''</div>'''
         convertion = Parser.boiler_plate_top + convert + Parser.boiler_plate_bottom
         try:
