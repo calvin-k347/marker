@@ -1,2 +1,2 @@
 Flask==3.0.3
-watchdog==6.0.0
+livereload==2.7.1
