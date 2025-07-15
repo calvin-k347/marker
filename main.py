@@ -4,19 +4,17 @@ from parser import Parser
 import time
 from livereload import Server
 from server import app, home
-md_files = []
-def main():
-    for i,arg in enumerate(sys.argv[1:]):
-        p = Parser(arg)
-        preview_path = p.method(i)
-        md_files.append(".\\" + arg)
+def parse(file,i):
+    Parser(file).method(i)
 if __name__ == "__main__":
-    main()
+    for i, arg in enumerate(sys.argv[1:]):
+        Parser(arg).method(i)
     if sys.platform ==  "win32":
         start_tailwind = ["powershell.exe", "-File", "./scripts/build_tailwind.ps1"]
-        start_preview = ["powershell.exe", "-File","./scripts/preview.ps1" ] + ["http://127.0.0.1/0"]
+        start_preview = ["powershell.exe", "-File","./scripts/preview.ps1" ] + ["http://127.0.0.1/"]
     server = Server(app.wsgi_app)
-    server.watch("*.md", func=main)
+    for i, file in enumerate(sys.argv[1:]):
+        server.watch(file, func=lambda: parse(file,i))
     app.debug =True
     subprocess.run(start_tailwind)
     subprocess.run(start_preview)
