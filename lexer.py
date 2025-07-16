@@ -9,7 +9,7 @@ class Lexer:
         q = []
         with open(self.file) as f:
             for line in f:
-                stripped_line = line[:-1]
+                stripped_line = line[:-1] if line[-1] == "\n"  else line
                 if not stripped_line:
                     q.append(Token("break", ""))
                 else:
@@ -65,13 +65,10 @@ class Lexer:
                             if literal_reg:
                                 q.append(Token("paragraph", literal_reg))
                                 literal_reg = ""
-        for t in q:
-            print(t)
         return q
 
                             
                                 
-
 
                 
                         
