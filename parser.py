@@ -55,7 +55,8 @@ class Parser:
                 token.value = self.__inline(token.value)
                 convert += f'''<h{token.level} class="{Parser.heading_styles[token.level]}">{token.value}</h{token.level}>'''
             if self.states["line"]:
-                convert += f"<div class=\"w-full border-dotted border-b-4 mt-2 mb-2\"></div>"
+                style = "border-dotted" if token.value == "---" else "border-solid"
+                convert += f"<div class=\"w-full {style} border-b-4 mt-2 mb-2\"></div>"
             if self.states["list-item"]:
                 convert += f'''<li class="ml-4">{self.__inline(token.value)}</li>''' 
             if self.states["code"]:

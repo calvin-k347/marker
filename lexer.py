@@ -19,9 +19,9 @@ class Lexer:
                             depth = stripped_line.count("#")
                             token = Token("heading", stripped_line[depth:], level=depth)
                             q.append(token)
-                        case "-":
-                            if stripped_line == "---":
-                                token = Token("line", "---")
+                        case "-" | "_":
+                            if stripped_line in ["---", "___"]:
+                                token = Token("line", start*3)
                             elif len(stripped_line) > 2 and stripped_line[0:2] == "- ":
                                 token = Token("list-item", stripped_line[1:])
                             q.append(token)
