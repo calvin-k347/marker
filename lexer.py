@@ -34,7 +34,7 @@ class Lexer:
                                 if buffer:
                                     buffer -=1 
                                     continue
-                                if char not in ["*", "`", "\n", "!"]:
+                                if char not in ["*", "`", "\n", "!", "<"]:
                                     literal_reg += char
                                 elif char == "*":
                                     emph = re.search(r"\*\*\*(.+)\*\*\*|\*\*(.+)\*\*|\*(.+)\*", stripped_line)
@@ -74,6 +74,15 @@ class Lexer:
                                         buffer += len(img.group()) -1
                                     else:
                                         literal_reg += "!"
+                                elif char == "<":
+                                    if len(stripped_line) > 1 and stripped_line[i: i+1] == "<>":
+                                        q.append(Token("div", None))
+                                        buffer +=1
+                                    elif len(stripped_line) > 2 and stripped_line[i:i+2] == "</>":
+                                        q.append(Token("div", None))
+                                        buffer += 2
+                                    else:
+                                        literal_reg += "<"
                             if literal_reg:
                                 q.append(Token("paragraph", literal_reg))
                                 literal_reg = ""

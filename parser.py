@@ -34,14 +34,15 @@ class Parser:
         "line": False,
         "break": False,
         "image":False,
-        "multi-line-code": False
+        "multi-line-code": False, 
+        "div": False
     }
         self.active_states = set()
     def __inline(self, text):
         text = re.sub(r'\*\*\*(.+?)\*\*\*', r'<span class="italic font-bold">\1</span>', text)
         text = re.sub(r'\*\*(.+?)\*\*', r'<span class="font-bold">\1</span>', text)
         text = re.sub(r'\*(.+?)\*', r'<span class="italic">\1</span>', text)
-        text = re.sub(r'`(.+?)`', r'<div class="w-full bg-gray-200"><p class="font-mono p-2">\1</p></div>', text)
+        text = re.sub(r'`(.+?)` | ```(.+?)```', r'<div class="w-full bg-gray-200"><p class="font-mono p-2">\1</p></div>', text)
         return text
     def __parse(self, n):
         convert = '''\t<div class="grid sm:w-4/5 md:w-1/2 mx-auto mt-5  items-center">\n\t'''
@@ -62,11 +63,10 @@ class Parser:
             if self.states["heading"]:
                 token.value = self.__inline(token.value)
                 print(f"token: {token}")
-                print(f"token.type = {token.type}, token.level = {token.level}, type(token.level) = {type(token.level)}")
                 convert += f'''<h{token.level} class="{Parser.heading_styles[token.level]}">{token.value}</h{token.level}>'''
             if self.states["line"]:
-                style = "border-dotted" if token.value == "---" else "border-solid"
-                convert += f"<div class=\"w-full {style} border-b-4 mt-2 mb-2\"></div>"
+                style = "border-dotted border-b-4" if token.value == "---" else "border-solid border-b-2"
+                convert += f"<div class=\"w-full {style} mt-2 mb-2\"></div>"
             if self.states["list-item"]:
                 ordering = token.level
                 if "list-item" not in self.active_states:
