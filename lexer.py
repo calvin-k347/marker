@@ -49,11 +49,18 @@ class Lexer:
                                         literal_reg += char
                                 elif char == "`":
                                     if len(stripped_line) > 2 and stripped_line[0:3] == "```":
-                                        value = stripped_line[3:-3] if stripped_line[-3:-1] == "'''" else stripped_line[3:]
-                                        multi_line_token = Token("multi-line-code", value)
-                                        continue
-                                    code = re.search(r"`.+`", stripped_line[stripped_line.index("`"):])
-                                    if code:
+
+                                        value = stripped_line[3:-3] if stripped_line[-3:-1] == "```" else stripped_line[3:]
+                                        if stripped_line[-3:] == "```":
+                                            q.append(Token("code", stripped_line[3:-3]))
+                                            buffer = len(stripped_line) -1
+                                        else:
+                                            q.append(Token("multi-line-code", stripped_line[3:]))
+                                        if literal_reg:
+                                            q.append(Token("paragraph", literal_reg))
+                                            literal_reg = ""
+                                         
+                                    elif (code :=re.search(r"`.+`", stripped_line[stripped_line.index("`"):])):
                                         if literal_reg:
                                             q.append(Token("paragraph", literal_reg))
                                             literal_reg = ""

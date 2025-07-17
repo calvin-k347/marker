@@ -1,5 +1,6 @@
 import re, os
 from lexer import Lexer
+from mdtoken import Token
 class Parser:
     heading_styles = {1: "text-2xl",
                       2: "text-xl",
@@ -32,7 +33,8 @@ class Parser:
         "list-item": False,
         "line": False,
         "break": False,
-        "image":False
+        "image":False,
+        "multi-line-code": False
     }
         self.active_states = set()
     def __inline(self, text):
@@ -53,7 +55,7 @@ class Parser:
                 self.active_states.remove("list-item")
                 convert += f'''</{"ol" if ordering == "ORDERED" else "ul"}>'''
             # handle token types
-            if token.type not in ["paragraph", "emphasis"] and curr_pg:
+            if token.type not in ["paragraph", "emphasis", "code"] and curr_pg:
                 curr_pg += '''</p>'''
                 convert += curr_pg
                 curr_pg = ""
@@ -71,7 +73,9 @@ class Parser:
                     convert += f'''<{"ol class= \"list-decimal\"" if ordering == "ORDERED" else "ul class=\"list-disc\""}>'''
                 convert += f'''<li class="ml-4">{self.__inline(token.value)}</li>''' 
             if self.states["code"]:
-                convert += f'''<div class="w-full bg-gray-200"><p class="font-mono p-2">{token.value}</p></div>'''
+                curr_pg += f'''<code><span class="w-full bg-gray-200 font-mono px-2">{token.value}</span></code>'''
+            if self.states["multi-line-code"]:
+                pass
             if self.states["paragraph"]:
                 if "<p>" in curr_pg:
                     curr_pg += f''' {token.value}'''
@@ -87,7 +91,7 @@ class Parser:
             self.active_states.add(token.type)
             num_active_states = len(self.active_states)
             self.states[token.type] = False
-            if token.type not in ["list-item"]:
+            if token.type not in Token.MULTI_LINE_TOKENS:
                 self.active_states.remove(token.type)
         if curr_pg:
             curr_pg += '''</p>'''
