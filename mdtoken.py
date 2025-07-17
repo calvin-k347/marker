@@ -1,4 +1,5 @@
 class Token:
+    MULTI_LINE_TOKENS = ["list-item"]
     def __init__(self, type, value, level = None):
         self.type = type
         self.value = value
