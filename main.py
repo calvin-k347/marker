@@ -11,7 +11,7 @@ if __name__ == "__main__":
         Parser(arg).method(i)
     if sys.platform ==  "win32":
         start_tailwind = ["powershell.exe", "-File", "./scripts/build_tailwind.ps1"]
-        start_preview = ["powershell.exe", "-File","./scripts/preview.ps1" ] + ["http://127.0.0.1/"]
+        start_preview = ["powershell.exe", "-File","./scripts/preview.ps1" ] + ["http://127.0.0.1/0"]
     server = Server(app.wsgi_app)
     for i, file in enumerate(sys.argv[1:]):
         server.watch(file, func=lambda: parse(file,i))

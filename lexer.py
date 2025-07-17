@@ -7,23 +7,24 @@ class Lexer:
     def lex(self):
         literal_reg = ""
         q = []
+        multi_line = False
         with open(self.file) as f:
             for line in f:
                 stripped_line = line[:-1] if line[-1] == "\n"  else line
                 if not stripped_line:
                     q.append(Token("break", ""))
-                else:
+                elif not multi_line:
                     start = stripped_line[0]
                     match start:
                         case "#":
                             depth = stripped_line.count("#")
                             token = Token("heading", stripped_line[depth:], level=depth)
                             q.append(token)
-                        case "-" | "_":
+                        case "-" | "_" | "+":
                             if stripped_line in ["---", "___"]:
                                 token = Token("line", start*3)
-                            elif len(stripped_line) > 2 and stripped_line[0:2] == "- ":
-                                token = Token("list-item", stripped_line[1:])
+                            elif len(stripped_line) > 2 and stripped_line[0:2] in ["- ", "+ "]:
+                                token = Token("list-item", stripped_line[1:], "UNORDERED" if start == "-" else "ORDERED")
                             q.append(token)
                         case "":
                             q.append(Token("break", ""))
@@ -47,6 +48,10 @@ class Lexer:
                                     else:
                                         literal_reg += char
                                 elif char == "`":
+                                    if len(stripped_line) > 2 and stripped_line[0:3] == "```":
+                                        value = stripped_line[3:-3] if stripped_line[-3:-1] == "'''" else stripped_line[3:]
+                                        multi_line_token = Token("multi-line-code", value)
+                                        continue
                                     code = re.search(r"`.+`", stripped_line[stripped_line.index("`"):])
                                     if code:
                                         if literal_reg:
@@ -65,6 +70,7 @@ class Lexer:
                             if literal_reg:
                                 q.append(Token("paragraph", literal_reg))
                                 literal_reg = ""
+        print(q)
         return q
 
                             
