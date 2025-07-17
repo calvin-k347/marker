@@ -79,13 +79,13 @@ class Lexer:
                                         if literal_reg:
                                             q.append(Token("paragraph", literal_reg))
                                             literal_reg = ""
-                                        q.append(Token("div", literal_reg))
+                                        q.append(Token("div", "OPENING"))
                                         buffer +=1
                                     elif len(stripped_line) > 2 and stripped_line[i:i+3] == "</>":
                                         if literal_reg:
                                             q.append(Token("paragraph", literal_reg))
                                             literal_reg = ""
-                                        q.append(Token("div", literal_reg))
+                                        q.append(Token("div", "CLOSING"))
                                         buffer += 2
                                         
                                     else:
@@ -93,7 +93,6 @@ class Lexer:
                             if literal_reg:
                                 q.append(Token("paragraph", literal_reg))
                                 literal_reg = ""
-        print(q)
         return q
 
                             

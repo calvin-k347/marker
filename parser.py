@@ -48,8 +48,9 @@ class Parser:
         convert = '''\t<div class="grid sm:w-4/5 md:w-1/2 mx-auto mt-5  items-center">\n\t'''
         lexed = Lexer(self.file).lex()
         curr_pg = ""
+        style = None
         for i, token in enumerate(lexed):
-            print(token)
+            print(token, "|", self.active_states)
             self.states[token.type] = True
             # if list state is active and another state is also active, close the list 
             if "list-item" in self.active_states and num_active_states > 1:
@@ -62,11 +63,10 @@ class Parser:
                 curr_pg = ""
             if self.states["heading"]:
                 token.value = self.__inline(token.value)
-                print(f"token: {token}")
                 convert += f'''<h{token.level} class="{Parser.heading_styles[token.level]}">{token.value}</h{token.level}>'''
             if self.states["line"]:
-                style = "border-dotted border-b-4" if token.value == "---" else "border-solid border-b-2"
-                convert += f"<div class=\"w-full {style} mt-2 mb-2\"></div>"
+                line_style = "border-dotted border-b-4" if token.value == "---" else "border-solid border-b-2"
+                convert += f"<div class=\"w-full {line_style} mt-2 mb-2\"></div>"
             if self.states["list-item"]:
                 ordering = token.level
                 if "list-item" not in self.active_states:
@@ -87,7 +87,13 @@ class Parser:
                 convert += "<br>"
             if self.states["image"]:
                 convert += f'''<div class="w-50 h-50 mx-auto my-2"><img class="w-full h-full object-contain" src="{token.value[1]}" alt="{token.value[0]}"></div>'''
+            if self.states["div"]:
+                if token.value == "OPENING":
+                    convert += f'''<div class="{style}">'''
+                elif token.value == "CLOSING":
+                    convert += f'''</div>'''
             # add activate state
+            print("adding ", token.type, " to ", self.active_states)
             self.active_states.add(token.type)
             num_active_states = len(self.active_states)
             self.states[token.type] = False
