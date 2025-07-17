@@ -75,14 +75,21 @@ class Lexer:
                                     else:
                                         literal_reg += "!"
                                 elif char == "<":
-                                    if len(stripped_line) > 1 and stripped_line[i: i+1] == "<>":
-                                        q.append(Token("div", None))
+                                    if len(stripped_line) > 1 and stripped_line[i: i+2] == "<>":
+                                        if literal_reg:
+                                            q.append(Token("paragraph", literal_reg))
+                                            literal_reg = ""
+                                        q.append(Token("div", literal_reg))
                                         buffer +=1
-                                    elif len(stripped_line) > 2 and stripped_line[i:i+2] == "</>":
-                                        q.append(Token("div", None))
+                                    elif len(stripped_line) > 2 and stripped_line[i:i+3] == "</>":
+                                        if literal_reg:
+                                            q.append(Token("paragraph", literal_reg))
+                                            literal_reg = ""
+                                        q.append(Token("div", literal_reg))
                                         buffer += 2
+                                        
                                     else:
-                                        literal_reg += "<"
+                                        literal_reg += "777"
                             if literal_reg:
                                 q.append(Token("paragraph", literal_reg))
                                 literal_reg = ""
