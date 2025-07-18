@@ -88,12 +88,11 @@ class Parser:
             if self.states["image"]:
                 convert += f'''<div class="w-50 h-50 mx-auto my-2"><img class="w-full h-full object-contain" src="{token.value[1]}" alt="{token.value[0]}"></div>'''
             if self.states["div"]:
-                if token.value == "OPENING":
+                if token.level == "OPENING":
                     convert += f'''<div class="{style}">'''
-                elif token.value == "CLOSING":
+                elif token.level == "CLOSING":
                     convert += f'''</div>'''
             # add activate state
-            print("adding ", token.type, " to ", self.active_states)
             self.active_states.add(token.type)
             num_active_states = len(self.active_states)
             self.states[token.type] = False

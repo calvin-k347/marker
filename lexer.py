@@ -75,21 +75,22 @@ class Lexer:
                                     else:
                                         literal_reg += "!"
                                 elif char == "<":
-                                    if len(stripped_line) > 1 and stripped_line[i: i+2] == "<>":
+                                    if len(stripped_line) > 2 and stripped_line[i:i+3] == "</>":
                                         if literal_reg:
                                             q.append(Token("paragraph", literal_reg))
                                             literal_reg = ""
-                                        q.append(Token("div", "OPENING"))
-                                        buffer +=1
-                                    elif len(stripped_line) > 2 and stripped_line[i:i+3] == "</>":
-                                        if literal_reg:
-                                            q.append(Token("paragraph", literal_reg))
-                                            literal_reg = ""
-                                        q.append(Token("div", "CLOSING"))
+                                        q.append(Token("div", None ,level="CLOSING"))
                                         buffer += 2
+                                    elif len(stripped_line) > 1 and (injections:=re.match(r"<.+?>",stripped_line[i:])):
+                                        if literal_reg:
+                                            q.append(Token("paragraph", literal_reg))
+                                            literal_reg = ""
+                                        q.append(Token("div", stripped_line[i+1:stripped_line[i:].index(">")], level="OPENING"))
+                                        buffer += len(injections.group()) - 1
+                                    
                                         
                                     else:
-                                        literal_reg += "777"
+                                        literal_reg += "<"
                             if literal_reg:
                                 q.append(Token("paragraph", literal_reg))
                                 literal_reg = ""
