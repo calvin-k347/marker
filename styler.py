@@ -3,6 +3,7 @@ class State:
     # all utils are disjoint sets so this _should_ work
     def __init__(self, name, transitions, terminal=False):
         self.name = name
+        self.terminal = terminal
         self.transitions = set()
         self.disjoint_sets = transitions
         for transition in transitions:
@@ -11,8 +12,7 @@ class State:
         for i in self.disjoint_sets:
             if element in i[1]:
                 return i[0]
-            else:
-                print(element, "Not found")
+        print(element, "Not found")
             
     def __repr__(self):
         return self.name  + "-> " + "".join([t[0] + ", " for t in self.disjoint_sets])
@@ -42,7 +42,7 @@ class Styler:
     def parse_style(self, args):
         styles = args.split()
         start = Styler.states["roots"]
-        
+        valid_styles = ""
         print 
         for style in styles:
             terms = style.split("-")
@@ -58,12 +58,18 @@ class Styler:
                     print("Next" , next_state)
                     curr_state = Styler.states[next_state]
                 else:
-                    print("NOT TAILWIND")
+                    print(style," is NOT TAILWIND")
                     break
+            if curr_state.terminal:
+                valid_styles += f" {style} "
+            else:
+                print(style, "ended on nonterminal")
+        return valid_styles
+            
 
 
 if __name__ == "__main__":
     s = Styler()
-    s.parse_style("text-red-500")
+    print(s.parse_style("text-left text-red-500"))
 
                      
