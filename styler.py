@@ -6,13 +6,13 @@ class State:
         self.terminal = terminal
         self.transitions = set()
         self.disjoint_sets = transitions
+        self.parent_map = {}
         for transition in transitions:
             self.transitions |= transition[1]
+            for element in transition[1]:
+                self.parent_map[element] = transition[0]
     def find_parent(self, element):
-        for i in self.disjoint_sets:
-            if element in i[1]:
-                return i[0]
-        print(element, "Not found")
+        return self.parent_map.get(element, None)
             
     def __repr__(self):
         return self.name  + "-> " + "".join([t[0] + ", " for t in self.disjoint_sets])
