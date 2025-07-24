@@ -50,58 +50,16 @@ class Parser:
         curr_pg = ""
         style = None
         for i, token in enumerate(lexed):
-            print(token, "|", self.active_states)
-            self.states[token.type] = True
-            # if list state is active and another state is also active, close the list 
-            if "list-item" in self.active_states and num_active_states > 1:
-                self.active_states.remove("list-item")
-                convert += f'''</{"ol" if ordering == "ORDERED" else "ul"}>'''
-            # handle token types
-            if token.type not in ["paragraph", "emphasis", "code"] and curr_pg:
-                curr_pg += '''</p>'''
-                convert += curr_pg
-                curr_pg = ""
-            if self.states["heading"]:
-                token.value = self.__inline(token.value)
-                convert += f'''<h{token.level} class="{Parser.heading_styles[token.level]}">{token.value}</h{token.level}>'''
-            if self.states["line"]:
-                line_style = "border-dotted border-b-4" if token.value == "---" else "border-solid border-b-2"
-                convert += f"<div class=\"w-full {line_style} mt-2 mb-2\"></div>"
-            if self.states["list-item"]:
-                ordering = token.level
-                if "list-item" not in self.active_states:
-                    convert += f'''<{"ol class= \"list-decimal\"" if ordering == "ORDERED" else "ul class=\"list-disc\""}>'''
-                convert += f'''<li class="ml-4">{self.__inline(token.value)}</li>''' 
-            if self.states["code"]:
-                curr_pg += f'''<code><span class="w-full bg-gray-200 font-mono px-2">{token.value}</span></code>'''
-            if self.states["multi-line-code"]:
-                pass
-            if self.states["paragraph"]:
-                if "<p>" in curr_pg:
-                    curr_pg += f''' {token.value}'''
-                else:
-                    curr_pg += f'''<p> {token.value}'''
-            if self.states["emphasis"]:
-                curr_pg += f'''<span class="{Parser.emphasis_styles[token.level]}">{token.value}</span>'''
-            if self.states["break"]:
-                convert += "<br>"
-            if self.states["image"]:
-                convert += f'''<div class="w-50 h-50 mx-auto my-2"><img class="w-full h-full object-contain" src="{token.value[1]}" alt="{token.value[0]}"></div>'''
-            if self.states["div"]:
-                if token.level == "OPENING":
-                    convert += f'''<div class="{style}">'''
-                elif token.level == "CLOSING":
-                    convert += f'''</div>'''
-            # add activate state
-            self.active_states.add(token.type)
-            num_active_states = len(self.active_states)
-            self.states[token.type] = False
-            if token.type not in Token.MULTI_LINE_TOKENS:
-                self.active_states.remove(token.type)
-        if curr_pg:
-            curr_pg += '''</p>'''
-            convert += curr_pg
-            curr_pg = ""
+            if token.type == "heading":
+                self.parse_heading(token)
+            elif token.type == "paragraph":
+                self.parse_paragraph(token)
+            elif token.type == "emph":
+                self.parse_emph(token)
+            elif token.type == "code":
+                self.parse_code(token)
+            elif token.type == "img":
+                self.parse_img(token)
         convert  += '''</div>'''
         convertion = Parser.boiler_plate_top + convert + Parser.boiler_plate_bottom
         try:
